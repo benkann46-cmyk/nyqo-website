@@ -1,7 +1,5 @@
-// NYQO Flash as an object: the bolt from the icon set, cast in cyan. Every few seconds it strikes.
 import { THREE, coarsePointer, createRenderer, studioEnvironment, runScene, trackPointer, easeOutExpo, easeOutBack, clamp01 } from "./kit.js?v=20261115";
 
-// Outline of #i-bolt (viewBox 0 0 24 24).
 const BOLT = [[13.5, 2], [4, 13.5], [11, 13.5], [10, 22], [19.5, 10.5], [12.5, 10.5]];
 const CYAN = 0x5ee7ff;
 const STRIKE_EVERY_MS = 4600;
@@ -61,7 +59,6 @@ export function mountFlash(host) {
     pointer.step();
 
     const drop = clamp01(elapsed / 1100);
-    // The first strike lands as the bolt does; after that it repeats on a slow beat.
     const sinceStrike = (elapsed - 700 + STRIKE_EVERY_MS * 1000) % STRIKE_EVERY_MS;
     const strike = elapsed < 700 ? 0 : Math.max(0, 1 - sinceStrike / 520);
 

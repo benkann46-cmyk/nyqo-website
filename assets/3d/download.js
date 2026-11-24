@@ -1,5 +1,3 @@
-// The download card's fan of squad tiles, as real cards: they deal out from behind the mark when
-// the card scrolls into view.
 import { THREE, createRenderer, studioEnvironment, runScene, trackPointer, easeOutExpo, easeOutBack, clamp01 } from "./kit.js?v=20261115";
 import { buildMark } from "./mark.js?v=20261115";
 import { SQUADS, buildTile, displayFontReady } from "./tiles.js?v=20261115";
@@ -59,7 +57,6 @@ export async function mountDownload(host) {
     mark.rotation.set(0.1 + pointer.y * 0.2, -0.4 + pointer.x * 0.5 + Math.sin(t * 0.5) * 0.14 + (1 - pop) * 2.2, 0);
 
     stage.rotation.set(pointer.y * 0.06, pointer.x * 0.12, 0);
-    // The fan is wider than it is tall: pull back just far enough that it fits either way.
     camera.position.set(0, -12, Math.max(260, 640 / camera.aspect) / FIT);
     renderer.render(scene, camera);
   };

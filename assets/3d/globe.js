@@ -1,11 +1,8 @@
-// A dotted globe for the translation section. Each time a chat message flips language on the page,
-// a ripple leaves the sender's corner of the world and arcs run to the friends reading it.
 import { THREE, coarsePointer, createRenderer, runScene, trackPointer, easeOutExpo, clamp01 } from "./kit.js?v=20261115";
 import { isLand } from "./land.js?v=20261115";
 
 const R = 200;
 const INK = 0xebe9f0;
-// Rough positions, only there to spread the languages over the map. `from` matches data-from in the chat.
 const PLACES = [
   { label: "Español", lat: 40.4, lon: -3.7, from: "Spanish", color: 0xff5d8f },
   { label: "日本語", lat: 35.7, lon: 139.7, from: "Japanese", color: 0x2dd4bf },
@@ -89,7 +86,6 @@ function body() {
           vV = normalize(-mv.xyz);
           gl_Position = projectionMatrix * mv;
         }`,
-      // Graphite with a soft key light from the upper left and a thin violet edge.
       fragmentShader: `
         varying vec3 vN; varying vec3 vV;
         void main() {
@@ -154,7 +150,6 @@ function arc(a, b) {
   const sinAngle = Math.sin(angle);
   const points = Array.from({ length: 33 }, (_, i) => {
     const t = i / 32;
-    // Great-circle path, raised in the middle so it clears the surface.
     return a
       .clone()
       .multiplyScalar(Math.sin((1 - t) * angle) / sinAngle)
@@ -202,7 +197,6 @@ export function mountGlobe(host) {
     pin.lookAt(normal.clone().multiplyScalar(R * 2));
     globe.add(pin);
     const tag = label(place);
-    // Staggered heights keep neighbouring tags from landing on top of each other.
     tag.position.copy(normal).multiplyScalar(R * (1.11 + (i % 3) * 0.075));
     globe.add(tag);
     return { ...place, normal, pin, tag, shown: 0 };
@@ -250,7 +244,6 @@ export function mountGlobe(host) {
     const intro = easeOutExpo(clamp01((now - start) / 1400));
     pointer.step(0.05);
 
-    // Sways between Europe and East Asia so both ends of the conversation stay in view.
     globe.rotation.set(0.4 + pointer.y * 0.1, -rad(70 + Math.sin(t * 0.22) * 17) + pointer.x * 0.22, 0);
     globe.scale.setScalar(0.88 + intro * 0.12);
     dots.material.uniforms.uShow.value = intro;

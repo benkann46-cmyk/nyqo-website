@@ -1,7 +1,5 @@
-// The NYQO mark as a solid object, shared by the hero and the download scene.
 import { THREE } from "./kit.js?v=20261115";
 
-// Outlines of the two pieces, straight from nyqo-mark.svg (viewBox 0 -8 300 300).
 const PIECES = [
   {
     points: [[0, 51], [87, 0], [211, 76], [211, 155], [73, 74], [73, 219], [0, 262]],
@@ -20,7 +18,6 @@ const PIECES = [
 const material = (color, roughness) =>
   new THREE.MeshPhysicalMaterial({ color, roughness, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 1.2 });
 
-/** Returns the mark (300 units wide, centred) and its two pieces with the pose each one flies in from. */
 export function buildMark() {
   const group = new THREE.Group();
   const pieces = PIECES.map((piece) => {
@@ -41,7 +38,6 @@ export function buildMark() {
   return { group, pieces };
 }
 
-/** Moves the pieces along their fly-in: 0 is apart, 1 is locked together. */
 export function assemble(pieces, progress) {
   pieces.forEach(({ mesh, from }, i) => {
     const k = 1 - progress(i);

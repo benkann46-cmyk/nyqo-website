@@ -1,5 +1,3 @@
-// The NYQO mark as a solid object: its two pieces fly in and lock together, then squad tiles
-// drift into orbit around it. Everything leans towards the cursor and opens up on scroll.
 import { THREE, coarsePointer, createRenderer, studioEnvironment, runScene, trackPointer, easeOutExpo, clamp01 } from "./kit.js?v=20261115";
 import { buildMark, assemble } from "./mark.js?v=20261115";
 import { SQUADS, buildTile, displayFontReady } from "./tiles.js?v=20261115";
@@ -7,7 +5,6 @@ import { SQUADS, buildTile, displayFontReady } from "./tiles.js?v=20261115";
 const ASSEMBLE_MS = 1500;
 const TILES_AT = 650;
 const GROUND = 0x0c0a12;
-// On a narrow screen the canvas runs past the viewport, so the orbit is pulled in to stay visible.
 const compact = matchMedia("(max-width: 900px)");
 
 export async function mountHero(host) {
@@ -15,7 +12,6 @@ export async function mountHero(host) {
   const renderer = createRenderer(host, { maxDpr: coarsePointer ? 2 : 1.75 });
   const scene = new THREE.Scene();
   scene.environment = studioEnvironment(renderer);
-  // Tiles at the back of the orbit sink into the page colour instead of competing with the mark.
   scene.fog = new THREE.Fog(GROUND, 1430, 2000);
   const camera = new THREE.PerspectiveCamera(28, 1, 10, 4000);
   camera.position.set(0, 0, 1445);
@@ -50,7 +46,6 @@ export async function mountHero(host) {
     };
   });
 
-  // A few loose fragments between the tiles keep the space from feeling empty.
   const shardCount = coarsePointer ? 8 : 16;
   const shards = new THREE.InstancedMesh(
     new THREE.OctahedronGeometry(7, 0),
@@ -82,16 +77,13 @@ export async function mountHero(host) {
     const scroll = clamp01(scrollY / (host.offsetHeight || 1));
 
     assemble(pieces, (i) => easeOutExpo(clamp01((elapsed - i * 140) / ASSEMBLE_MS)));
-    // The rim light flares once as the pieces lock into place.
     const lock = clamp01((elapsed - ASSEMBLE_MS * 0.55) / 500);
     rim.intensity = 3 + Math.sin(lock * Math.PI) * 5;
 
-    // Rests turned a little so the depth reads, and sways slowly like something on display.
     mark.rotation.y = -0.42 + pointer.x * 0.32 + Math.sin(t * 0.45) * 0.12 + scroll * 0.6;
     mark.rotation.x = 0.12 + pointer.y * 0.2 + Math.sin(t * 0.33) * 0.04;
     mark.position.y = Math.sin(t * 0.8) * 7 + scroll * 40;
 
-    // The orbit is a tilted ring: tiles pass low in front of the mark and high behind it.
     orbit.set(0.46 + pointer.y * 0.1 + scroll * 0.3, 0, -0.14);
     tiles.forEach((tile, i) => {
       const arrive = easeOutExpo(clamp01((elapsed - TILES_AT - i * 110) / 1300));

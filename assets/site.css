@@ -29,7 +29,6 @@
   --ink-soft: #cbc7d4;
   --ink-muted: #a7a2b3;
   --ink-faint: #8a8499;
-  /* NYQO violet: fills carry white text, accent-text is the tint that reads on the dark ground. */
   --accent: #9135ff;
   --accent-hover: #7c19f2;
   --accent-text: #b48bff;
@@ -169,12 +168,6 @@ a {
   white-space: nowrap;
 }
 
-/* Liquid glass */
-
-/* The layer that floats above the page: the header and the quiet buttons. A plate behind their
-   content darkens, blurs and saturates whatever passes under it, its rim catches the light, and a
-   glint follows the pointer. Where the engine can run an SVG filter on a backdrop, site.js hands
-   each plate a --lens, and its rim bends what lies behind it as well. */
 @property --glint {
   syntax: "<number>";
   inherits: true;
@@ -210,7 +203,6 @@ a {
   backdrop-filter: var(--lens,) blur(var(--glass-blur, 16px)) saturate(180%) brightness(0.55);
   box-shadow: 0 14px 30px -18px rgb(0 0 0 / 0.8);
 }
-/* The rim: bright where the light comes from and where it leaves again. */
 .site-header .wrap::after,
 .btn-secondary::after {
   padding: 1px;
@@ -223,7 +215,6 @@ a {
     linear-gradient(#000 0 0) content-box exclude,
     linear-gradient(#000 0 0);
 }
-/* A lens shows more of what it bends when it blurs less. */
 .has-lens {
   --glass-blur: 9px;
 }
@@ -235,8 +226,6 @@ a {
     backdrop-filter: none;
   }
 }
-
-/* Buttons */
 
 .btn {
   display: inline-flex;
@@ -287,7 +276,6 @@ a {
 .btn-secondary {
   color: var(--ink);
 }
-/* The plate covers the border box. */
 .btn-secondary::before,
 .btn-secondary::after {
   inset: -1px;
@@ -337,8 +325,6 @@ a {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cyan) 30%, transparent);
 }
 
-/* Header */
-
 .site-header {
   position: sticky;
   top: 0;
@@ -352,7 +338,6 @@ a {
   border-radius: 999px;
   transition: --glint 0.45s var(--ease-out);
 }
-/* Its plate is a capsule that forms around the bar once the page moves under it. */
 .site-header .wrap::before,
 .site-header .wrap::after {
   inset: 8px max(8px, calc(var(--gutter) - 12px));
@@ -407,12 +392,10 @@ a {
   color: var(--ink);
   background: rgb(255 255 255 / 0.09);
 }
-/* Round, so it sits concentric in the capsule's end. */
 .site-header .btn {
   margin-left: auto;
   border-radius: 999px;
 }
-/* Glass does not lie on glass: in the bar a quiet button is only a lighter patch. */
 .site-header .btn-secondary::before {
   background: rgb(255 255 255 / 0.08);
   -webkit-backdrop-filter: none;
@@ -428,8 +411,6 @@ a {
     display: none;
   }
 }
-
-/* Hero */
 
 .hero {
   position: relative;
@@ -461,7 +442,6 @@ a {
   justify-content: flex-start;
 }
 
-/* The NYQO mark in 3D. The SVG stays underneath until the first WebGL frame is painted. */
 .hero-art {
   position: relative;
   aspect-ratio: 1;
@@ -562,8 +542,6 @@ a {
   color: var(--ink-faint);
   min-height: 1.6em;
 }
-
-/* App mock */
 
 .stage {
   --tilt: 1;
@@ -1066,8 +1044,6 @@ a {
   }
 }
 
-/* Sections */
-
 section {
   position: relative;
 }
@@ -1096,8 +1072,6 @@ section {
   font-size: 18px;
   color: var(--ink-muted);
 }
-
-/* Inside: band tiles as tabs */
 
 .feature-tabs {
   display: flex;
@@ -1248,7 +1222,6 @@ section {
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
 }
 
-/* Demo: bands */
 .mini-row {
   display: flex;
   gap: 10px;
@@ -1314,7 +1287,6 @@ section {
   font-weight: 500;
 }
 
-/* Demo: voice */
 .vroom {
   border-radius: 14px;
   background: var(--ground);
@@ -1394,7 +1366,6 @@ section {
   height: 18px;
 }
 
-/* Demo: files */
 .file {
   display: grid;
   grid-template-columns: 44px 1fr;
@@ -1453,7 +1424,6 @@ section {
   background: var(--green);
 }
 
-/* Demo: voice note */
 .vnote {
   display: flex;
   align-items: center;
@@ -1522,13 +1492,10 @@ section {
   }
 }
 
-/* Encryption */
-
 .crypto {
   background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--accent) 5%, transparent) 50%, transparent);
 }
 
-/* Laptop → server → PC in 3D, above the step-by-step cards; desktop only. */
 .wire-3d {
   position: relative;
   height: clamp(280px, 30vw, 400px);
@@ -1737,8 +1704,6 @@ section {
   }
 }
 
-/* Translation */
-
 .translate {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -1835,8 +1800,6 @@ section {
     grid-template-columns: minmax(0, 1fr);
   }
 }
-
-/* Flash */
 
 .flash-card {
   position: relative;
@@ -1940,8 +1903,6 @@ section {
   }
 }
 
-/* Download */
-
 .download-hero {
   position: relative;
   border-radius: 28px;
@@ -1977,7 +1938,6 @@ section {
   color: var(--ink);
 }
 
-/* How buying works: three steps that end on Discord. */
 .buy-steps {
   list-style: none;
   counter-reset: step;
@@ -2114,8 +2074,6 @@ section {
   }
 }
 
-/* FAQ */
-
 .faq {
   display: grid;
   gap: 10px;
@@ -2168,8 +2126,6 @@ section {
   margin: 0;
 }
 
-/* Footer */
-
 .site-footer {
   border-top: 1px solid var(--line-soft);
   padding: 48px 0 56px;
@@ -2214,8 +2170,6 @@ section {
     width: 100%;
   }
 }
-
-/* Legal pages */
 
 .legal {
   padding: clamp(40px, 7vw, 88px) 0 clamp(64px, 10vw, 120px);
@@ -2332,8 +2286,6 @@ section {
   }
 }
 
-/* Reveal */
-
 .js [data-reveal] {
   opacity: 0;
   transform: translateY(24px);
@@ -2351,8 +2303,6 @@ section {
   animation: rise 0.9s var(--ease-spring) forwards;
   animation-delay: var(--d, 0s);
 }
-
-/* Keyframes */
 
 @keyframes rise {
   to {
@@ -2459,8 +2409,6 @@ section {
   }
 }
 
-/* Band wall */
-
 .inside {
   padding-top: clamp(40px, 6vw, 72px);
 }
@@ -2551,8 +2499,6 @@ section {
   }
 }
 
-/* Feature stage takes the selected band's colour */
-
 @property --band {
   syntax: "<color>";
   inherits: true;
@@ -2572,8 +2518,6 @@ section {
 .inside-stage .fdemo {
   background: color-mix(in srgb, var(--panel) 88%, var(--band));
 }
-
-/* Encryption claims as typographic rows */
 
 .claims {
   margin-top: clamp(48px, 7vw, 88px);
@@ -2602,8 +2546,6 @@ section {
   }
 }
 
-/* Flash bolt */
-
 .flash-card > * {
   position: relative;
   z-index: 1;
@@ -2619,8 +2561,6 @@ section {
   opacity: 0.07;
   transform: rotate(12deg);
 }
-
-/* Download: a fan of band tiles behind the logo */
 
 .fan {
   position: relative;
@@ -2655,8 +2595,6 @@ section {
   z-index: 1;
 }
 
-/* Heading wipe */
-
 .js [data-wipe] {
   clip-path: inset(0 0 100% 0);
   transform: translateY(0.25em);
@@ -2678,8 +2616,6 @@ section {
   }
 }
 
-/* Buy page: price, a four-step walkthrough with small mock screens, the risk notice and the
-   confirmation that unlocks the way to Discord. */
 .buy .wrap {
   max-width: 980px;
 }
@@ -2776,7 +2712,6 @@ section {
   color: var(--accent-text);
 }
 
-/* Mock screens: drawn from the page's own palette, not a copy of any real app. */
 .mock {
   display: grid;
   gap: 10px;
@@ -3026,7 +2961,6 @@ section {
   color: var(--ink);
 }
 
-/* Buy page: four steps, the test-mode notice, the order form and its confirmation. */
 .buy .buy-steps-4 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   max-width: none;
@@ -3130,7 +3064,6 @@ section {
   color: var(--ink-soft);
 }
 
-/* Buy page: where to turn when the code doesn't arrive. */
 .code-help {
   display: grid;
   justify-items: start;
@@ -3177,8 +3110,6 @@ section {
   text-decoration: none;
 }
 
-/* ---------- 3D stages and scroll motion ---------- */
-
 .hero {
   overflow: hidden;
 }
@@ -3200,9 +3131,6 @@ section {
   -webkit-mask-image: radial-gradient(closest-side, #000 76%, transparent 100%);
   mask-image: radial-gradient(closest-side, #000 76%, transparent 100%);
 }
-
-/* The valley: the hero's 3D world. Plain, it is a full-height hero. Once WebGL is there the block
-   becomes a tall track, its content pins, and scrolling flies the camera down to the server. */
 
 .hero {
   padding-top: 0;
@@ -3235,7 +3163,6 @@ section {
 .world.is-3d .world-view canvas {
   opacity: 1;
 }
-/* Keeps the headline readable over the valley, and lets go as the flight starts. */
 .world-view::before {
   content: "";
   position: absolute;
@@ -3247,7 +3174,6 @@ section {
 .world.is-3d .world-view::before {
   opacity: calc(1 - var(--flown) * 5);
 }
-/* The valley runs out into the page ground. */
 .world-view::after {
   content: "";
   position: absolute;
@@ -3279,8 +3205,6 @@ section {
   opacity: 0;
 }
 
-/* Film bars close in as the flight starts. They are ground-coloured, so the lower one is also
-   where the valley ends and the page goes on. */
 .world.is-3d .world-pin::before,
 .world.is-3d .world-pin::after {
   content: "";
@@ -3299,7 +3223,6 @@ section {
   transform-origin: bottom;
 }
 
-/* What the flight says on the way in. One line at a time, bottom left. */
 .world-beats,
 .world-hint {
   display: none;
@@ -3376,7 +3299,6 @@ section {
   .world.is-eligible .hero-art {
     display: none;
   }
-  /* On a phone the server stands below the headline, so the shade comes from the top. */
   .world-view::before {
     background: linear-gradient(180deg, color-mix(in srgb, var(--ground) 90%, transparent) 0%, color-mix(in srgb, var(--ground) 70%, transparent) 48%, transparent 76%);
   }
@@ -3577,7 +3499,6 @@ section {
   }
 }
 
-/* On a phone the note under a translated message wraps as whole pieces, not mid-phrase. */
 .tmsg .tnote {
   flex-wrap: wrap;
   row-gap: 2px;

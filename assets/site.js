@@ -2,7 +2,6 @@ document.documentElement.classList.add("js");
 
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// The page only says which version of the demo fits the visitor's computer.
 const DOWNLOADS = {
   windows: { meta: "Windows 10 and 11 · one-time €3, paid with PayPal" },
   macos: { meta: "The macOS demo is coming in a few days. The Windows demo is €3." },
@@ -41,8 +40,6 @@ function setupHeader() {
   addEventListener("scroll", update, { passive: true });
 }
 
-// The displacement map of a plate: red pushes what is behind it sideways, blue up and down, and
-// mid grey leaves it alone. Only the rim bends, the deeper in the less.
 function lensMap(w, h, depth) {
   const ramp = (size, colour) =>
     [[0, 255], [(depth * 0.4) / size, 172], [depth / size, 128], [1 - depth / size, 128], [1 - (depth * 0.4) / size, 84], [1, 0]]
@@ -57,9 +54,6 @@ function lensMap(w, h, depth) {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-// Liquid glass: the glint on a plate follows the pointer, and in Chromium its rim bends what lies
-// behind it. Safari and Firefox accept an SVG filter on a backdrop but draw nothing, so there the
-// plates stay with the blur from the stylesheet.
 function setupGlass() {
   const GLASS = ".site-header .wrap, .btn-secondary";
   const hosts = [...document.querySelectorAll(GLASS)];
@@ -113,7 +107,6 @@ function setupGlass() {
     bend.setAttribute("scale", depth * 2.4);
   };
   const observer = new ResizeObserver((entries) => entries.forEach((entry) => fit(entry.target)));
-  // Fitted right away as well: a page opened in the background is not observed until it is shown.
   hosts.forEach((host) => {
     fit(host);
     observer.observe(host);
@@ -131,7 +124,6 @@ function setupReveal() {
   }
   const targets = new Map();
   const watch = (watched, el) => targets.set(watched, [...(targets.get(watched) ?? []), el]);
-  // A clipped heading never counts as intersecting, so its parent is watched instead.
   for (const el of items) watch(el.hasAttribute("data-wipe") ? el.parentElement : el, el);
   for (const el of document.querySelectorAll("[data-reveal]")) watch(el, el);
   for (const group of document.querySelectorAll("[data-stagger]")) {
@@ -141,7 +133,6 @@ function setupReveal() {
       watch(group, child);
     });
   }
-  // Once it has arrived, an element gets its own transitions back (hover states and the like).
   const settle = (el) => {
     el.removeAttribute("data-reveal");
     el.classList.remove("is-in");
@@ -163,7 +154,6 @@ function setupReveal() {
   targets.forEach((_, watched) => io.observe(watched));
 }
 
-/** Marks the nav link of the section that is on screen. */
 function setupScrollSpy() {
   const links = new Map(
     [...document.querySelectorAll('.nav a[href^="#"]')].map((link) => [link.getAttribute("href").slice(1), link]),
@@ -187,7 +177,6 @@ function setupScrollSpy() {
   sections.forEach((section) => io.observe(section));
 }
 
-/** Runs `tick` only while `el` is on screen, so nothing animates off-screen. */
 function whileVisible(el, start, stop) {
   if (!el) return;
   let running = false;
@@ -205,7 +194,6 @@ function whileVisible(el, start, stop) {
 const GLYPHS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789+/=";
 const randomCipher = (length) => Array.from({ length }, () => GLYPHS[(Math.random() * GLYPHS.length) | 0]).join("");
 
-/** Turns ciphertext into the real text letter by letter, like a message being unlocked. */
 function decrypt(el, text, duration = 700) {
   return new Promise((resolve) => {
     if (reducedMotion) {
@@ -581,7 +569,6 @@ function setupTranslation() {
     langs.forEach((l) => l.classList.remove("is-lit"));
     const lit = [langs[(turn * 5) % langs.length], langs[(turn * 5 + 3) % langs.length]].filter(Boolean);
     lit.forEach((l) => l.classList.add("is-lit"));
-    // The globe next to the chat lights up the same languages.
     document.dispatchEvent(
       new CustomEvent("translate:pulse", { detail: { from: msg.dataset.from, lit: lit.map((l) => l.textContent) } }),
     );
@@ -594,8 +581,6 @@ function setupTranslation() {
   );
 }
 
-/** The hero's second line arrives as ciphertext and decrypts, the same way messages do in NYQO. */
-/** Buy page: orders the demo from the NYQO server and shows what happens next. */
 function setupShop() {
   const forms = [...document.querySelectorAll("[data-order]")];
   const api = document.querySelector('meta[name="nyqo-api"]')?.content;
@@ -645,7 +630,6 @@ function setupShop() {
           acceptRisk: form.risk.checked,
           acceptWithdrawal: form.withdrawal.checked,
         });
-        // Card: off to Stripe's payment page; the buyer comes back with a session id.
         if (data.checkoutUrl) return location.assign(data.checkoutUrl);
         const done = show(form, "[data-order-done]");
         done.querySelector("[data-order-ref]").textContent = data.reference;
@@ -661,7 +645,6 @@ function setupShop() {
     });
   }
 
-  // Coming back from Stripe.
   const params = new URLSearchParams(location.search);
   const form = forms.find((f) => !f.closest("section")?.hidden) ?? forms[0];
   if (params.has("cancelled")) fail(form, form.dataset.cancelled);
@@ -685,13 +668,11 @@ function setupShop() {
   }
 }
 
-/** Pages with an English and a German version show one at a time, German first for German browsers. */
 function setupLanguages() {
   const nav = document.querySelector("[data-lang-switch]");
   const sections = [...document.querySelectorAll("[data-lang-section]")];
   if (!nav || sections.length < 2) return;
   const links = [...nav.querySelectorAll("a")];
-  // Text outside the sections carries its German version in data-de.
   const shared = [...document.querySelectorAll("[data-de]")].map((el) => [el, el.textContent, el.dataset.de]);
   const show = (lang) => {
     for (const section of sections) section.hidden = section.id !== lang;
@@ -709,7 +690,6 @@ function setupLanguages() {
   show(sections.some((x) => x.id === wanted) ? wanted : navigator.language?.toLowerCase().startsWith("de") ? "de" : "en");
 }
 
-/** Two rows of squad tiles slide in opposite directions with the scroll; the tile in the middle takes focus like in the app. */
 function setupWall() {
   const section = document.querySelector("[data-wall-section]");
   if (!section) return;

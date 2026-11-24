@@ -1,5 +1,3 @@
-// Squad tiles as solid cards. The faces are painted on a canvas the same way the page draws them:
-// one flat colour, one motif, the name in caps.
 import { THREE, roundedBox } from "./kit.js?v=20261115";
 
 export const SQUADS = [
@@ -82,7 +80,6 @@ const MOTIFS = {
   },
 };
 
-/** Resolves once the display face can be drawn on a canvas, or shortly after if it never arrives. */
 export function displayFontReady() {
   return Promise.race([document.fonts.load('400 34px "Bebas Neue"'), new Promise((done) => setTimeout(done, 1500))]);
 }
@@ -104,13 +101,11 @@ function paint(squad) {
   return canvas;
 }
 
-/** A tile `width` units wide in the page's 300:169 shape, face painted, edges in a darker tone. */
 export function buildTile(squad, width, anisotropy = 4) {
   const height = (width * 169) / 300;
   const texture = new THREE.CanvasTexture(paint(squad));
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = anisotropy;
-  // The extruded caps carry raw x/y as UVs, so the texture is stretched over the tile's extent.
   texture.repeat.set(1 / width, 1 / height);
   texture.offset.set(0.5, 0.5);
   const face = new THREE.MeshPhysicalMaterial({ map: texture, roughness: 0.42, clearcoat: 0.7, clearcoatRoughness: 0.3, envMapIntensity: 0.55 });

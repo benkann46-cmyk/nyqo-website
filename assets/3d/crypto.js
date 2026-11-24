@@ -1,13 +1,9 @@
-// Laptop → server → PC: a message turns into a padlock on the sender's laptop, crosses the
-// server sealed, and only opens on the friend's PC. Driven by the "wire:send" events the
-// HTML demo below fires, so both always show the same message.
 import { THREE, createRenderer, studioEnvironment, roundedBox, contactShadow, runScene, easeInOutCubic, easeOutExpo, clamp01 } from "./kit.js?v=20261115";
 
 const GRAPHITE = 0x221e2e;
 const GRAPHITE_DARK = 0x16131f;
 const VIOLET = 0x9135ff;
 
-// Timeline of one send, in ms; arrival lines up with the HTML decrypt that starts at 1400.
 const SEAL = 300;
 const TO_SERVER = 950;
 const HOLD = 1150;
@@ -31,7 +27,6 @@ export function mountCrypto(host, wire) {
 
   const standard = (color, roughness = 0.45, metalness = 0.35) =>
     new THREE.MeshPhysicalMaterial({ color, roughness, metalness, clearcoat: 0.4, envMapIntensity: 1 });
-  // Both screens show a tiny NYQO chat window, drawn once onto a canvas.
   const screenTexture = (() => {
     const c = document.createElement("canvas");
     c.width = 512;
@@ -63,7 +58,6 @@ export function mountCrypto(host, wire) {
   })();
   const screenMaterial = () => new THREE.MeshBasicMaterial({ map: screenTexture, color: 0xffffff });
 
-  // Sender: laptop.
   const laptop = new THREE.Group();
   laptop.position.set(-400, 0, 0);
   const base = new THREE.Mesh(roundedBox(230, 150, 10, 12, 2), standard(GRAPHITE));
@@ -85,7 +79,6 @@ export function mountCrypto(host, wire) {
   laptop.add(shadowA);
   scene.add(laptop);
 
-  // Middle: the server, a tower with rack slots that light up while the packet passes.
   const server = new THREE.Group();
   const tower = new THREE.Mesh(roundedBox(150, 240, 150, 10, 3), standard(GRAPHITE_DARK, 0.5, 0.5));
   tower.position.y = 120;
@@ -105,7 +98,6 @@ export function mountCrypto(host, wire) {
   server.add(shadowB);
   scene.add(server);
 
-  // Recipient: monitor on a stand.
   const pc = new THREE.Group();
   pc.position.set(400, 0, 0);
   const monitor = new THREE.Mesh(roundedBox(240, 150, 10, 10, 2.5), standard(GRAPHITE));
@@ -126,7 +118,6 @@ export function mountCrypto(host, wire) {
   pc.add(shadowC);
   scene.add(pc);
 
-  // The route, plus a glowing band that runs along it with the packet.
   const curve = new THREE.CatmullRomCurve3([
     new THREE.Vector3(-400, 150, 20),
     new THREE.Vector3(-210, 290, 40),
@@ -148,7 +139,6 @@ export function mountCrypto(host, wire) {
   });
   scene.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 160, 3.2, 8, false), glow));
 
-  // The packet is a padlock: rounded body, shackle on top.
   const lock = new THREE.Group();
   const lockMaterial = new THREE.MeshPhysicalMaterial({
     color: VIOLET,
@@ -169,7 +159,6 @@ export function mountCrypto(host, wire) {
   lock.visible = false;
   scene.add(lock);
 
-  // The readable message, drawn onto a card that hovers over the laptop and later the PC.
   const cardCanvas = document.createElement("canvas");
   cardCanvas.width = 768;
   cardCanvas.height = 240;
@@ -195,7 +184,6 @@ export function mountCrypto(host, wire) {
     ctx.fillStyle = "#ebe9f0";
     ctx.font = '500 44px "Inter", system-ui, sans-serif';
     ctx.textBaseline = "middle";
-    // Up to two lines, broken between words.
     const lines = [""];
     for (const word of text.split(" ")) {
       const next = lines.at(-1) ? `${lines.at(-1)} ${word}` : word;
@@ -246,7 +234,6 @@ export function mountCrypto(host, wire) {
     card.visible = e < SEAL || (e > OPEN - 100 && e < SHOW + 500);
 
     if (e < SEAL) {
-      // The card folds into the padlock on the laptop.
       const p = easeInOutCubic(e / SEAL);
       card.position.copy(fromCard);
       card.scale.set(1 - p * 0.85, 1 - p * 0.6, 1);
@@ -265,7 +252,6 @@ export function mountCrypto(host, wire) {
       head = u;
       lock.position.copy(curve.getPointAt(u));
       lock.position.y += 18;
-      // Parked on the server it rattles: the server holds it but has no key.
       const held = e >= TO_SERVER && e < HOLD ? Math.sin(((e - TO_SERVER) / (HOLD - TO_SERVER)) * Math.PI * 6) * 0.18 : 0;
       lock.rotation.set(0, t * 2.2, held);
       if (e >= TO_PC) {
@@ -275,7 +261,6 @@ export function mountCrypto(host, wire) {
       }
     }
     if (e >= OPEN - 100 && e < SHOW + 500) {
-      // The message unfolds on the friend's PC.
       const p = easeOutExpo(clamp01((e - OPEN + 100) / 420));
       const fade = 1 - clamp01((e - SHOW) / 500);
       card.position.copy(toCard);

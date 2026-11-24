@@ -1,5 +1,3 @@
-// Shared pieces for the WebGL scenes. Everything here is local: three.js is vendored and the
-// lighting environment is generated in the browser, so the page still makes no outside requests.
 import * as THREE from "../vendor/three/three.module.min.js";
 
 export { THREE };
@@ -18,7 +16,6 @@ export function createRenderer(host, { maxDpr = 1.75 } = {}) {
   return renderer;
 }
 
-/** A small studio built from glowing panels, baked into an environment map for reflections. */
 export function studioEnvironment(renderer, { accent = 0xb48bff, floor = 0x7404f5 } = {}) {
   const room = new THREE.Scene();
   room.add(new THREE.Mesh(new THREE.SphereGeometry(50, 24, 12), new THREE.MeshBasicMaterial({ color: 0x0c0a12, side: THREE.BackSide })));
@@ -41,7 +38,6 @@ export function studioEnvironment(renderer, { accent = 0xb48bff, floor = 0x7404f
   return env;
 }
 
-/** Rounded block: a rounded rectangle pushed out with a soft bevel, centred on the origin. */
 export function roundedBox(w, h, d, r = Math.min(w, h) * 0.15, bevel = Math.min(2.5, d * 0.2)) {
   const x = -w / 2 + bevel;
   const y = -h / 2 + bevel;
@@ -70,7 +66,6 @@ export function roundedBox(w, h, d, r = Math.min(w, h) * 0.15, bevel = Math.min(
   return geometry;
 }
 
-/** Soft dark blot that grounds an object without real shadow maps. */
 export function contactShadow(width, depth, opacity = 0.55) {
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 128;
@@ -93,7 +88,6 @@ export const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2)
 export const easeOutBack = (t) => 1 + 2.4 * (t - 1) ** 3 + 1.4 * (t - 1) ** 2;
 export const clamp01 = (t) => Math.min(1, Math.max(0, t));
 
-/** Cursor position across the window, from -1 to 1, eased a little every frame. */
 export function trackPointer() {
   const target = { x: 0, y: 0 };
   const eased = { x: 0, y: 0 };
@@ -116,18 +110,12 @@ export function trackPointer() {
 
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
-/**
- * Renders only while the host is on screen and the tab is visible, keeps the canvas sized to its
- * host, and reports the first painted frame so the static fallback can fade out. A lost WebGL
- * context or switching on Reduce Motion stops the scene for good and hands back to the fallback.
- */
 export function runScene(host, renderer, camera, frame, onFirstFrame) {
   let visible = false;
   let raf = 0;
   let painted = false;
   let stopped = false;
   const resize = () => {
-    // The canvas may be drawn larger than its host, so it is measured itself.
     const canvas = renderer.domElement;
     const { width, height } = canvas.clientWidth ? { width: canvas.clientWidth, height: canvas.clientHeight } : host.getBoundingClientRect();
     if (width === 0 || height === 0) return;

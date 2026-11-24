@@ -1,14 +1,10 @@
-// Reads the one mesh of a glTF file whose buffer and texture sit next to it as files of their
-// own. The stock loader fetches embedded ones through blob: URLs, which the page's CSP rules out.
 import { THREE } from "./kit.js?v=20261115";
 
 const ARRAYS = { 5120: Int8Array, 5121: Uint8Array, 5122: Int16Array, 5123: Uint16Array, 5125: Uint32Array, 5126: Float32Array };
 const SIZES = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4 };
 
-/** Resolves to the mesh's geometry and its colour texture. */
 export async function loadModel(url) {
   const base = new URL(url);
-  // Parts carry the file's version, so a new model never meets an old buffer in the cache.
   const part = (uri) => Object.assign(new URL(uri, base), { search: base.search });
   const ok = (response) => {
     if (!response.ok) throw new Error(`${response.url}: ${response.status}`);
@@ -37,7 +33,6 @@ export async function loadModel(url) {
   geometry.setAttribute("uv", attribute(primitive.attributes.TEXCOORD_0));
   geometry.setIndex(attribute(primitive.indices));
 
-  // glTF textures start at the top left.
   map.flipY = false;
   map.colorSpace = THREE.SRGBColorSpace;
   return { geometry, map };

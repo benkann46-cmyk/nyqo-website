@@ -1,6 +1,3 @@
-// The opening scene: a moonlit valley with the NYQO server standing in the middle of it. Scrolling
-// flies the camera from the ridge down through the valley to the rack, which wakes up row by row
-// on the way in. The picture is finished like film: bloom, vignette, a little fringe and grain.
 import { THREE, coarsePointer, createRenderer, studioEnvironment, roundedBox, runScene, trackPointer, clamp01 } from "./kit.js?v=20261115";
 import { buildMark, assemble } from "./mark.js?v=20261115";
 import { loadModel } from "./model.js?v=20261112";
@@ -12,30 +9,21 @@ const VIOLET_TEXT = 0xb48bff;
 const GREEN = 0x4cc77a;
 const AMBER = 0xff9b45;
 
-// The knoll the server stands on, and where its plinth ends.
 const KNOLL = 5;
 const PLINTH = 1.1;
 const RACK = { w: 2.5, h: 8.6, d: 2.95 };
-// The cabinet itself is a generated model (Meshy 6, through Higgsfield). Its body runs from
-// `foot` to `top` in its own units and faces +z; the antenna stands on top of that.
 const MODEL = { url: new URL("./models/server.gltf?v=20261112", import.meta.url).href, foot: -0.951, top: 0.716 };
-// The server is built at desk size and stood in the valley as a tower.
 const TOWER = 1.5;
 const MARK_Y = PLINTH + RACK.h + 2.7;
 
-// Camera stops along the scroll: [position, what it looks at]. Each leg takes the same share of
-// the scroll, so the long legs at the start are the fast ones. The view opens towards +z.
-// On the last legs the camera slides across in front of the tower, so the moon passes behind
-// it and comes out on the other side.
 const STOPS = [
-  [[-58, 47, 152], [0, 15, 0]], // high over the ridge
-  [[-43, 25, 106], [0, 14, 0]], // dropping into the valley
-  [[-26, 10, 64], [0, 13.5, 0]], // low over the trees
-  [[-15, 7.4, 44], [0, 15.5, 0]], // at the foot of the knoll, looking up
-  [[-7, 7.8, 37], [0, 15, 0]], // the tower covers the moon
-  [[-1.5, 8.6, 35], [0, 14.6, 0]], // and stands against it
+  [[-58, 47, 152], [0, 15, 0]],
+  [[-43, 25, 106], [0, 14, 0]],
+  [[-26, 10, 64], [0, 13.5, 0]],
+  [[-15, 7.4, 44], [0, 15.5, 0]],
+  [[-7, 7.8, 37], [0, 15, 0]],
+  [[-1.5, 8.6, 35], [0, 14.6, 0]],
 ];
-// The moon hangs low behind the server, so the valley is lit from the back.
 const MOON = new THREE.Vector3(0.12, 0.23, -1).normalize();
 const APPROACH = Math.atan2(STOPS[0][0][2], STOPS[0][0][0]);
 
@@ -45,7 +33,6 @@ const smooth = (a, b, x) => {
   return t * t * (3 - 2 * t);
 };
 
-/** Seeded, so the valley is the same valley on every visit. */
 function seeded(seed) {
   return () => {
     seed = (seed + 0x6d2b79f5) | 0;
@@ -83,7 +70,6 @@ function fbm(x, z) {
   }
   return sum;
 }
-/** Sharp crests instead of soft bumps. */
 function ridges(x, z) {
   let sum = 0;
   let amp = 0.5;
@@ -97,10 +83,8 @@ function ridges(x, z) {
   return sum;
 }
 
-/** Ground height: a flat knoll in the middle, rolling ground around it, mountains closing the valley. */
 function heightAt(x, z) {
   const d = Math.hypot(x, z);
-  // The valley stays open on the side the camera comes in from.
   let turn = Math.atan2(z, x) - APPROACH;
   turn = Math.atan2(Math.sin(turn), Math.cos(turn));
   const open = 1 - 0.9 * Math.exp(-(turn * turn) / 0.42);
@@ -119,7 +103,6 @@ function buildTerrain(segments) {
   const high = new THREE.Color(0x5a4f7c);
   const tint = new THREE.Color();
   for (let i = 0; i < position.count; i++) {
-    // Squeezing the grid towards the middle puts the small facets where the camera ends up.
     const u = position.getX(i);
     const v = position.getZ(i);
     const x = Math.sign(u) * Math.abs(u) ** 1.8 * reach;
@@ -132,7 +115,6 @@ function buildTerrain(segments) {
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
   const material = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.94, metalness: 0, envMapIntensity: 0.12 });
   const uniforms = { uTime: { value: 0 }, uLine: { value: new THREE.Color(VIOLET) } };
-  // Contour lines like on a survey map, and a ring that runs out from the server every few seconds.
   material.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
     shader.vertexShader = shader.vertexShader
@@ -161,7 +143,6 @@ function buildTerrain(segments) {
         float near = 1.0 - smoothstep(30.0, 260.0, length(vViewPosition));
         float wave = fract(uTime * 0.09);
         float ring = smoothstep(9.0, 0.0, abs(length(vWorld.xz) - wave * 240.0)) * (1.0 - wave) * (1.0 - wave);
-        // Mist lies in the low ground and drifts.
         float mist = (1.0 - smoothstep(-5.0, 11.0, vWorld.y)) * smoothstep(16.0, 70.0, length(vWorld.xz));
         mist *= 0.3 + 0.7 * drift(vWorld.xz * 0.02 + vec2(uTime * 0.035, uTime * 0.02));
         totalEmissiveRadiance += uLine * (contour * 0.42 * near + ring * 0.5) + vec3(0.2, 0.15, 0.44) * mist * 0.4;`,
@@ -194,10 +175,8 @@ function buildSky() {
         vec3 dir = normalize(vDir);
         float h = dir.y;
         vec3 color = mix(haze, zenith, smoothstep(-0.05, 0.42, h));
-        // Light behind the mountains, on the far side of the server.
         float behind = max(0.0, dot(normalize(dir.xz), normalize(moon.xz)));
         color += glow * pow(behind, 5.0) * (1.0 - smoothstep(0.0, 0.34, h)) * 0.6;
-        // The moon: a disc bright enough to bloom, and the glow it throws into the haze.
         float facing = max(0.0, dot(dir, moon));
         color += moonlight * (smoothstep(0.99905, 0.9993, facing) * 4.5 + pow(facing, 700.0) * 0.7 + pow(facing, 50.0) * 0.16);
         gl_FragColor = vec4(color, 1.0);
@@ -224,7 +203,6 @@ function buildStars(random, count) {
   return new THREE.Points(geometry, new THREE.PointsMaterial({ size: 1.7, sizeAttenuation: false, vertexColors: true, transparent: true, fog: false, depthWrite: false }));
 }
 
-/** Low conifers on the gentle ground, kept off the knoll, out of the camera's way and, once it flies low, out of its view of the server. */
 function buildTrees(random, count, flight) {
   const low = flight.slice(Math.floor(flight.length * 0.4));
   const inSight = (x, z) =>
@@ -257,7 +235,6 @@ function buildTrees(random, count, flight) {
   return trees;
 }
 
-/** Round soft dot for the things that give off light. */
 function glowTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 64;
@@ -271,7 +248,6 @@ function glowTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
-/** Texture that fades from solid at the bottom to nothing at the top. */
 function fadeUpTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = 4;
@@ -286,11 +262,6 @@ function fadeUpTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
-/**
- * The cabinet's material. What the model's texture paints teal is a light: it is taken out of the
- * surface colour and shines in NYQO's colours instead. The strip and the top follow `uStrip`;
- * the drives' status lights come on from the foot up to `uWake`.
- */
 function cabinetMaterial(map, lights) {
   const material = new THREE.MeshStandardMaterial({ map, color: 0xb4b2bd, roughness: 0.5, metalness: 0.7, envMapIntensity: 0.5 });
   material.onBeforeCompile = (shader) => {
@@ -315,7 +286,6 @@ function cabinetMaterial(map, lights) {
         `#include <map_fragment>
         vec3 texel = sampledDiffuseColor.rgb;
         float rise = (vAt.y - (${MODEL.foot})) / ${(MODEL.top - MODEL.foot).toFixed(3)};
-        // On the front, left of the strip, sit the drives' status lights; their cores are painted white.
         float status = step(vAt.x, 0.02) * step(0.2, vAt.z) * step(rise, 0.98);
         float teal = smoothstep(0.03, 0.2, min(texel.g, texel.b) - texel.r);
         float core = status * smoothstep(0.35, 0.7, min(texel.r, min(texel.g, texel.b)));
@@ -325,7 +295,6 @@ function cabinetMaterial(map, lights) {
       .replace(
         "#include <emissivemap_fragment>",
         `#include <emissivemap_fragment>
-        // One light in three is steady, one busy, one a rare warning.
         float column = floor(vAt.x * 80.0);
         float cell = floor(rise * 48.0) * 7.3 + column * 3.1;
         float kind = mod(column, 3.0);
@@ -336,7 +305,6 @@ function cabinetMaterial(map, lights) {
   return material;
 }
 
-/** The server: a plinth, the cabinet with its lights, and the NYQO mark above it. */
 function buildServer() {
   const group = new THREE.Group();
   const stone = new THREE.MeshStandardMaterial({ color: 0x2c273b, flatShading: true, roughness: 0.9, envMapIntensity: 0.2 });
@@ -346,7 +314,6 @@ function buildServer() {
   step.position.y = 0.7 + (PLINTH - 0.7) / 2;
   group.add(base, step);
 
-  // A plain cabinet stands in until the model has loaded, and stays if it never does.
   const { w, h, d } = RACK;
   const cabinet = new THREE.Mesh(
     roundedBox(w, h, d, 0.2, 0.08),
@@ -392,7 +359,6 @@ function buildServer() {
   return { group, mark, lights, beam };
 }
 
-/** Cables run from the server out into the valley, hugging the ground. */
 function buildCables(random) {
   const group = new THREE.Group();
   const material = new THREE.MeshStandardMaterial({ color: 0x0b0911, roughness: 0.55, metalness: 0.2, envMapIntensity: 0.3 });
@@ -411,10 +377,6 @@ function buildCables(random) {
   return { group, curves };
 }
 
-/**
- * Finishes each frame like film: whatever is brighter than white bleeds into its surroundings,
- * the corners fall off, colours part a little towards the edge, and there is a trace of grain.
- */
 function buildFilm(renderer) {
   const hdr = renderer.extensions.has("EXT_color_buffer_float") || renderer.extensions.has("EXT_color_buffer_half_float");
   const type = hdr ? THREE.HalfFloatType : THREE.UnsignedByteType;
@@ -482,7 +444,6 @@ function buildFilm(renderer) {
     }
     renderer.setRenderTarget(picture);
     renderer.render(scene, camera);
-    // Down the chain, keeping only the bright parts, then back up, each level added to the next.
     let source = picture;
     mips.forEach((mip, i) => {
       down.uniforms.map.value = source.texture;
@@ -516,7 +477,6 @@ export async function mountWorld(host) {
 
   scene.add(buildSky(), buildStars(random, coarsePointer ? 500 : 900));
   scene.add(new THREE.HemisphereLight(0x7a66c0, GROUND, 1.25));
-  // Moonlight from behind catches the crests; a weak fill keeps the near slopes from going black.
   const moon = new THREE.DirectionalLight(0xd9d4ff, 3.4);
   moon.position.copy(MOON).multiplyScalar(300);
   scene.add(moon);
@@ -538,7 +498,6 @@ export async function mountWorld(host) {
   server.group.position.y = KNOLL;
   server.group.scale.setScalar(TOWER);
   scene.add(server.group);
-  // The server lights its own knoll.
   const lamp = new THREE.PointLight(VIOLET, 260, 90, 1.8);
   lamp.position.set(0, KNOLL + 7.5, 10);
   scene.add(lamp);
@@ -546,7 +505,6 @@ export async function mountWorld(host) {
   const cables = buildCables(random);
   scene.add(cables.group);
 
-  // Packets ride the cables: in on some, out on the others. Each one carries a soft light.
   const perCable = 4;
   const packetCount = cables.curves.length * perCable;
   const packets = new THREE.InstancedMesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: new THREE.Color(VIOLET_TEXT).multiplyScalar(3), toneMapped: false }), packetCount);
@@ -561,7 +519,6 @@ export async function mountWorld(host) {
   glows.frustumCulled = false;
   scene.add(glows);
 
-  // Dust in the air around the knoll, so the flight has something to pass.
   const moteCount = coarsePointer ? 140 : 320;
   const motePositions = new Float32Array(moteCount * 3);
   for (let i = 0; i < moteCount; i++) {
@@ -600,10 +557,8 @@ export async function mountWorld(host) {
     last = now;
     pointer.step();
 
-    // How far the page has been scrolled through the scene, 0 to 1.
     const rect = host.getBoundingClientRect();
     const scroll = clamp01(-rect.top / Math.max(1, rect.height - innerHeight));
-    // The camera follows the scroll with some weight, and how far it lags is how fast it flies.
     flown = flown < 0 ? scroll : flown + (scroll - flown) * (1 - Math.exp(-dt * 4));
     rush += (Math.min(1, Math.abs(scroll - flown) * 7) - rush) * (1 - Math.exp(-dt * 6));
     host.style.setProperty("--flown", scroll.toFixed(3));
@@ -618,32 +573,25 @@ export async function mountWorld(host) {
     spot.y = Math.max(spot.y, heightAt(spot.x, spot.z) + 2.6);
     camera.position.copy(spot);
     camera.lookAt(look);
-    // It banks into the turns of its path.
     positions.getTangent(flown, heading);
     positions.getTangent(Math.min(1, flown + 0.04), ahead);
     const turn = heading.x * ahead.z - heading.z * ahead.x;
     camera.rotateZ(Math.max(-0.07, Math.min(0.07, turn * 1.7)) * (1 - smooth(0.6, 0.9, flown)));
-    // Widest while it flies through the valley; a fast scroll opens it a little further.
     const tall = compact.matches;
     const through = smooth(0.1, 0.4, flown) * (1 - smooth(0.5, 0.85, flown));
     const settled = smooth(0.7, 1, flown);
     camera.fov = (tall ? 58 : 42) + through * 10 + settled * 2 + rush * 5;
-    // At the top of the page the server stands clear of the headline: beside it on a wide
-    // screen, below it on a narrow one. At the end it leaves room for the last line.
     const { width, height } = renderer.domElement;
     const aside = 1 - smooth(0.04, 0.3, flown);
     camera.setViewOffset(width, height, tall ? 0 : -width * (0.2 * aside + 0.08 * settled), tall ? -height * 0.2 * aside : height * 0.03 * aside, width, height);
 
     terrain.uniforms.uTime.value = t;
 
-    // The rack wakes from the foot up as the camera closes in.
     const wake = smooth(0.3, 0.74, flown) * 1.08;
     server.lights.uWake.value = wake;
     server.lights.uTime.value = t;
-    // The mark turns with the camera and sways, so it always reads.
     server.mark.rotation.y = Math.atan2(camera.position.x, camera.position.z) + Math.sin(t * 0.6) * 0.5;
     server.mark.position.y = MARK_Y + Math.sin(t * 0.9) * 0.14;
-    // Its light strip and the beacon come up with the drives.
     const power = Math.min(1, wake);
     server.lights.uStrip.value.copy(stripLit).multiplyScalar(0.35 + power * 2.6);
     server.beam.material.opacity = 0.16 + power * 0.5;
